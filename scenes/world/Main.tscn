@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://bp2xkkktijuu7"]
+
+[ext_resource type="Script" uid="uid://ce1tq6cx2qamk" path="res://scripts/main.gd" id="1_0nnu2"]
+[ext_resource type="Texture2D" uid="uid://cbs5ptw6o4y8u" path="res://Foobar.jpg" id="1_6ryrm"]
+[ext_resource type="PackedScene" uid="uid://cr3g58tcamd3y" path="res://scenes/player/player.tscn" id="1_431da"]
+[ext_resource type="PackedScene" uid="uid://cb11m4efxhv3g" path="res://scenes/enemies/enemy.tscn" id="2_6ryrm"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_0nnu2")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_6ryrm")
+
+[node name="Player" parent="." instance=ExtResource("1_431da")]
+
+[node name="Enemy" parent="." instance=ExtResource("2_6ryrm")]
+
+[node name="Lasers" type="Node2D" parent="."]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="BoostBar" type="ProgressBar" parent="UI"]
+offset_right = 205.0
+offset_bottom = 38.0
+size_flags_horizontal = 8
+size_flags_vertical = 8
+value = 100.0
