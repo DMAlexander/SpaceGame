@@ -12,6 +12,13 @@ var drift_dir: Vector2 = Vector2.ZERO
 
 var hp: int
 
+var damage_cooldown := 0.5
+var damage_timer := 0.0
+var player_in_range := false
+var player_ref = null
+
+var float_text_scene = preload("res://scenes/score_popup/score_popup.tscn")
+
 func _ready():
 	add_to_group("enemy")
 
@@ -25,9 +32,15 @@ func _ready():
 
 	connect("area_entered", _on_area_entered)
 	connect("body_entered", _on_body_entered)
+	connect("body_exited", _on_body_exited)
 
 func _physics_process(delta):
-	global_position += drift_dir * drift_speed * delta
+	if player_in_range and is_instance_valid(player_ref):
+		damage_timer -= delta
+		
+		if damage_timer <= 0.0:
+			player_ref.apply_damage(damage, global_position)
+			damage_timer = damage_cooldown
 
 # ---------------- DAMAGE ----------------
 
@@ -40,10 +53,14 @@ func apply_damage(amount: int) -> void:
 # ---------------- COLLISIONS ----------------
 
 func _on_body_entered(body):
-	# Damage player on dcontact
 	if body.has_method("apply_damage"):
-		print('damage', damage)
-		body.apply_damage(damage)
+		player_in_range = true
+		player_ref = body
+
+func _on_body_exited(body):
+	if body == player_ref:
+		player_in_range = false
+		player_ref = null
 
 func _on_area_entered(area: Area2D) -> void:
 	# Laser hit

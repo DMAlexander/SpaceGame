@@ -18,5 +18,3 @@ shape = SubResource("RectangleShape2D_dovo2")
 
 [node name="Muzzle" type="Marker2D" parent="."]
 position = Vector2(0, -75)
-
-[node name="Camera2D" type="Camera2D" parent="."]
