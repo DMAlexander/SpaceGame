@@ -2,19 +2,20 @@ extends Node2D
 
 @onready var player = $Player
 @onready var lasers: Node2D = $Lasers
-
-
-
-##@onready var enemies = $Enemies
-@onready var boost_bar: ProgressBar = $UI/BoostBar
+@onready var ui = $UI
+##@onready var health_bar = $HealthBar
+##@onready var health_bar: Control = $UI/HealthBar
 
 var laser_scene = preload("res://scenes/laser.tscn")
 
 func _ready():
+	# ---------------- PLAYER SIGNALS ----------------
 	player.shot_fired.connect(_on_shot_fired)
+##	player.health_changed.connect(_on_health_changed)
+	player.health_changed.connect(ui._on_health_changed)
 
-##	for e in enemies.get_children():
-##		e.died.connect(_on_enemy_died)
+	player.boost_changed.connect(ui._on_boost_changed)
+	player.speed_changed.connect(ui._on_speed_changed)
 
 # ---------------- SHOOTING ----------------
 
@@ -22,26 +23,10 @@ func _on_shot_fired(origin, dir):
 	var l = laser_scene.instantiate()
 	l.global_position = origin
 	l.dir = dir
-	
 	l.rotation = dir.angle()
-	
 	lasers.add_child(l)
 
-# ---------------- ENEMY ----------------
+# ---------------- HEALTH ----------------
 
-func _on_enemy_died():
-##	score += points
-	print("enemy killed")
-	
-func _on_enemy_spawned(enemy):
-	enemy.died.connect(_on_enemy_died)
-
-func _process(delta):
-	print('player boost energy: ', player.boost_energy)
-	var target: float = player.boost_energy * 100.0
-
-	boost_bar.value = lerp(boost_bar.value, target, 0.2)
-
-	# --- SNAP FIX ---
-	if abs(boost_bar.value - target) < 0.5:
-		boost_bar.value = target
+##func _on_health_changed(current, max):
+##	health_bar.update_health(current, max)

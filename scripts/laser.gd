@@ -1,19 +1,20 @@
 extends Area2D
 
-@export var speed: float = 2000.0
-@export var lifetime: float = 0.5
+@export var speed := 2000.0
+@export var lifetime := 0.5
 
-var dir: Vector2 = Vector2.ZERO
+var dir: Vector2
 
 func _ready():
 	add_to_group("laser")
-	connect("area_entered", _on_hit)
-
+	connect("body_entered", _on_hit)
 	await get_tree().create_timer(lifetime).timeout
 	queue_free()
 
-func _physics_process(delta):
-	global_position += dir * speed * delta
+func _process(delta):
+	position += dir * speed * delta
 
-func _on_hit(area):
+func _on_hit(body):
+	if body.has_method("apply_damage"):
+		body.apply_damage(1)
 	queue_free()
