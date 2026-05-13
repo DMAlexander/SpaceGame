@@ -63,3 +63,10 @@ value = 100.0
 offset_right = 40.0
 offset_bottom = 23.0
 text = "0000"
+
+[node name="ComboLabel" type="Label" parent="UI"]
+offset_left = 514.0
+offset_top = 1.0
+offset_right = 554.0
+offset_bottom = 24.0
+text = "0000"

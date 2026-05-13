@@ -48,8 +48,14 @@ func hit_pause(duration: float = 0.05):
 	await get_tree().create_timer(duration * Engine.time_scale).timeout
 	Engine.time_scale = 1.0
 
-func _on_enemy_died(pos: Vector2, points: int):
-	score += points
-	score_label.text = str(score)
+##func _on_enemy_died(pos: Vector2, points: int):
+##	score += points
+##	score_label.text = str(score)
 	
-	fx_manager.enemy_death(pos, points)
+##	fx_manager.enemy_death(pos, points)
+	
+func _on_enemy_died(pos: Vector2, points: int):
+	var final_points = fx_manager.register_kill(points, pos)
+
+	score += final_points
+	score_label.text = str(score)
