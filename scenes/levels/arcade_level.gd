@@ -4,6 +4,7 @@ signal completed
 
 @export var waves: Array[WaveResource] = []
 
+var player = null
 @onready var scroll_root: Node2D = $ScrollRoot
 @onready var enemy_container: Node2D = $ScrollRoot/EnemyContainer
 
@@ -13,6 +14,9 @@ signal completed
 @export var scroll_speed: float = 100.0
 
 var current_wave: int = 0
+var active_wave: WaveResource
+var dive_timer: float = 3.0
+var dive_interval: float = 4.0
 
 # Camera simulation
 var scroll_target_y: float = 0.0
@@ -22,17 +26,25 @@ var camera_y: float = 0.0
 @export var scroll_smoothness: float = 0.08
 @export var cleanup_y: float = 800.0
 
+@export var wave_delay: float = 1.5
 
 func _ready():
+	player = get_tree().get_first_node_in_group("player")
 	start()
 
 
 func start():
 	current_wave = 0
-	start_wave(current_wave)
+	await start_wave(current_wave)
 
 
 func _process(delta):
+	dive_timer -= delta
+
+	if dive_timer <= 0.0:
+		trigger_random_dive()
+		dive_timer = dive_interval
+	
 	_handle_scrolling(delta)
 	_update_parallax()
 	cleanup_enemies()
@@ -63,12 +75,16 @@ func start_wave(index: int):
 		return
 
 	current_wave = index
+
 	var wave: WaveResource = waves[index]
+	active_wave = wave
 
 	await spawn_wave(wave)
 	await wait_for_clear()
 
-	start_wave(index + 1)
+	await get_tree().create_timer(wave_delay).timeout
+
+	await start_wave(index + 1)
 
 
 func spawn_wave(wave: WaveResource) -> void:
@@ -167,3 +183,32 @@ func wait_for_clear():
 func finish_level():
 	await get_tree().create_timer(1.0).timeout
 	emit_signal("completed")
+
+func trigger_random_dive():
+
+	if active_wave == null:
+		return
+
+	# Chance roll
+	if randf() > active_wave.dive_chance:
+		return
+
+	var enemies := []
+
+	for e in enemy_container.get_children():
+		if is_instance_valid(e) and e.state == e.State.FORMATION:
+			enemies.append(e)
+
+	if enemies.is_empty():
+		return
+
+	var enemy = enemies.pick_random()
+
+	if enemy.has_method("start_dive"):
+		var target = get_dive_target()
+		enemy.start_dive(target, active_wave.dive_speed)
+
+func get_dive_target() -> Vector2:
+	if player:
+		return player.global_position
+	return Vector2(500, 500)
