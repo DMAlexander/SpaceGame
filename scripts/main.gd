@@ -9,10 +9,11 @@ extends Node2D
 @onready var score_label: Label = $UI/ScoreLabel
 @onready var fx_manager: Node = $FXManager
 
-var explosion_scene = preload("res://scenes/enemy_explosion/enemy_explosion.tscn")
+@onready var level_manager = $LevelManager
+
 var laser_scene = preload("res://scenes/laser.tscn")
-var float_text_scene = preload("res://scenes/score_popup/score_popup.tscn")
 var score: int = 0
+var transitioning := false
 
 func _ready():
 	# ---------------- PLAYER SIGNALS ----------------
@@ -24,9 +25,14 @@ func _ready():
 	player.boost_changed.connect(ui._on_boost_changed)
 	player.speed_changed.connect(ui._on_speed_changed)
 ##	enemy.died.connect(_on_enemy_died)
+
+	level_manager.level_completed.connect(_on_level_completed)
+
+	level_manager.load_level(preload("res://scenes/levels/arcade_level_01.tscn"))
+	level_manager.level_started.connect(_on_level_started)
 	
-	for e in get_tree().get_nodes_in_group("enemy"):
-		e.died.connect(_on_enemy_died)
+##	for e in get_tree().get_nodes_in_group("enemy"):
+##		e.died.connect(_on_enemy_died)
 
 # ---------------- SHOOTING ----------------
 
@@ -37,25 +43,29 @@ func _on_shot_fired(origin, dir):
 	l.rotation = dir.angle()
 	lasers.add_child(l)
 
+func _on_level_started(index: int):
+	transitioning = false
+	await get_tree().process_frame
+
+	for e in get_tree().get_nodes_in_group("enemy"):
+		if e.has_signal("died") and not e.died.is_connected(_on_enemy_died):
+			e.died.connect(_on_enemy_died)
+
 # ---------------- HEALTH ----------------
 
 func _on_player_damaged(current, max):
 	shaker.shake(6.0)
 	fx_manager.hit_pause(0.05)
-
-func hit_pause(duration: float = 0.05):
-	Engine.time_scale = 0.05
-	await get_tree().create_timer(duration * Engine.time_scale).timeout
-	Engine.time_scale = 1.0
-
-##func _on_enemy_died(pos: Vector2, points: int):
-##	score += points
-##	score_label.text = str(score)
-	
-##	fx_manager.enemy_death(pos, points)
 	
 func _on_enemy_died(pos: Vector2, points: int):
 	var final_points = fx_manager.register_kill(points, pos)
 
 	score += final_points
 	score_label.text = str(score)
+
+func _on_level_completed(index: int):
+	if transitioning:
+		return
+
+	transitioning = true
+	level_manager.next_level(preload("res://scenes/levels/free_roam_01.tscn"))
