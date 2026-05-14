@@ -4,6 +4,11 @@
 
 [node name="ArcadeLevel" type="Node2D"]
 script = ExtResource("1_y5u05")
-waves = null
 
-[node name="EnemyContainer" type="Node2D" parent="."]
+[node name="BackgroundFar" type="Sprite2D" parent="."]
+
+[node name="BackgroundNear" type="Sprite2D" parent="."]
+
+[node name="ScrollRoot" type="Node2D" parent="."]
+
+[node name="EnemyContainer" type="Node2D" parent="ScrollRoot"]

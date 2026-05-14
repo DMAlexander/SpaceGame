@@ -3,4 +3,3 @@
 [ext_resource type="PackedScene" uid="uid://d2j4cqwfr8mrf" path="res://scenes/levels/arcade_level.tscn" id="1_dr5cw"]
 
 [node name="ArcadeLevel01" instance=ExtResource("1_dr5cw")]
-waves = null
