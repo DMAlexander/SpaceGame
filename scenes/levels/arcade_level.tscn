@@ -1,22 +1,27 @@
-[gd_scene load_steps=3 format=3 uid="uid://d2j4cqwfr8mrf"]
+[gd_scene load_steps=4 format=3 uid="uid://d2j4cqwfr8mrf"]
 
 [ext_resource type="Script" uid="uid://bhwt375jvdv1f" path="res://scenes/levels/arcade_level.gd" id="1_y5u05"]
 [ext_resource type="Texture2D" uid="uid://cbs5ptw6o4y8u" path="res://Foobar.jpg" id="2_n2kuy"]
+[ext_resource type="Texture2D" uid="uid://4cihgm2xu8n5" path="res://spacebackground.png" id="3_h5dy2"]
 
 [node name="ArcadeLevel" type="Node2D"]
 script = ExtResource("1_y5u05")
 
-[node name="ScrollRoot" type="Node2D" parent="."]
+[node name="WorldRoot" type="Node2D" parent="."]
 
-[node name="BackgroundNormal" type="Sprite2D" parent="ScrollRoot"]
+[node name="EnemyContainer" type="Node2D" parent="WorldRoot"]
+
+[node name="BackgroundFar" type="Sprite2D" parent="WorldRoot"]
 texture = ExtResource("2_n2kuy")
 
-[node name="BackgroundFar" type="Sprite2D" parent="ScrollRoot"]
-texture = ExtResource("2_n2kuy")
+[node name="ParallaxRoot" type="Node2D" parent="."]
 
-[node name="BackgroundNear" type="Sprite2D" parent="ScrollRoot"]
-texture = ExtResource("2_n2kuy")
+[node name="BackgroundFar" type="TextureRect" parent="ParallaxRoot"]
+texture_repeat = 2
+texture = ExtResource("3_h5dy2")
 
-[node name="EnemyContainer" type="Node2D" parent="ScrollRoot"]
+[node name="BackgroundNear" type="TextureRect" parent="ParallaxRoot"]
+texture_repeat = 2
+texture = ExtResource("3_h5dy2")
 
 [node name="ProjectileContainer" type="Node2D" parent="."]

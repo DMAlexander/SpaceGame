@@ -6,15 +6,19 @@ signal completed
 
 var player = null
 
-@onready var scroll_root: Node2D = $ScrollRoot
-@onready var enemy_container: Node2D = $ScrollRoot/EnemyContainer
+##@onready var scroll_root: Node2D = $ScrollRoot
+@onready var enemy_container: Node2D = $WorldRoot/EnemyContainer
 
-@onready var bg_far: Sprite2D = $ScrollRoot/BackgroundFar
-@onready var bg_near: Sprite2D = $ScrollRoot/BackgroundNear
+##@onready var bg_far: Sprite2D = $ScrollRoot/BackgroundFar
+##@onready var bg_near: Sprite2D = $ScrollRoot/BackgroundNear
+@onready var world_root: Node2D = $WorldRoot
+@onready var parallax_root: Node2D = $ParallaxRoot
+##@onready var bg_far: Sprite2D = $ParallaxRoot/BackgroundFar
+##@onready var bg_near: Sprite2D = $ParallaxRoot/BackgroundNear
+@onready var bg_far: TextureRect = $ParallaxRoot/BackgroundFar
+@onready var bg_near: TextureRect = $ParallaxRoot/BackgroundNear
 
-@export var scroll_speed: float = 100.0
-@export var scroll_smoothness: float = 0.08
-@export var cleanup_y: float = 800.0
+
 @export var wave_delay: float = 1.5
 
 var current_wave: int = 0
@@ -23,7 +27,16 @@ var active_wave: WaveResource = null
 var dive_timer: float = 3.0
 var dive_interval: float = 4.0
 
+
+# -----------------------------
+# SCROLL
+# -----------------------------
+@export var scroll_speed: float = 100.0
+@export var scroll_smoothness: float = 0.08
+@export var cleanup_y: float = 800.0
+
 var scroll_y: float = 0.0
+var camera_y: float = 0.0
 
 
 # --------------------------------------------------
@@ -41,14 +54,32 @@ func _ready():
 ##	start()
 
 func start_level():
+
+	var screen_size = get_viewport_rect().size
+	var screen_center = screen_size * 0.5
+
+	# -----------------------------
+	# PLAYER SETUP
+	# -----------------------------
 	if player:
 		player.control_mode = player.ControlMode.ARCADE
+
 		player.global_position = Vector2(
-			get_viewport_rect().size.x * 0.5,
-			get_viewport_rect().size.y * 0.75
+			screen_size.x * 0.5,
+			screen_size.y * 0.75
 		)
 	else:
 		push_error("ArcadeLevel: player not set!")
+
+	# -----------------------------
+	# BACKGROUND SETUP
+	# -----------------------------
+	bg_far.position = screen_center
+	bg_near.position = screen_center
+
+	# optional scaling if needed
+	# bg_far.scale = Vector2.ONE
+	# bg_near.scale = Vector2.ONE
 
 	start()
 
@@ -108,8 +139,15 @@ func _process(delta):
 # --------------------------------------------------
 
 func _handle_scrolling(delta: float) -> void:
+
+	# advance scroll target
 	scroll_y += scroll_speed * delta
-	scroll_root.position.y = scroll_y
+
+	# smooth camera motion
+	camera_y = lerp(camera_y, scroll_y, scroll_smoothness)
+
+	# move gameplay world
+	world_root.position.y = -camera_y
 
 
 # --------------------------------------------------
@@ -117,8 +155,8 @@ func _handle_scrolling(delta: float) -> void:
 # --------------------------------------------------
 
 func _update_parallax() -> void:
-	bg_far.position.y = scroll_root.position.y * 0.3
-	bg_near.position.y = scroll_root.position.y * 0.6
+	bg_far.position.y = scroll_y * 0.3
+	bg_near.position.y = scroll_y * 0.6
 
 
 # --------------------------------------------------
