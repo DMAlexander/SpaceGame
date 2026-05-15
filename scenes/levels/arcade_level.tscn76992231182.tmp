@@ -8,9 +8,6 @@ script = ExtResource("1_y5u05")
 
 [node name="ScrollRoot" type="Node2D" parent="."]
 
-[node name="BackgroundNormal" type="Sprite2D" parent="ScrollRoot"]
-texture = ExtResource("2_n2kuy")
-
 [node name="BackgroundFar" type="Sprite2D" parent="ScrollRoot"]
 texture = ExtResource("2_n2kuy")
 

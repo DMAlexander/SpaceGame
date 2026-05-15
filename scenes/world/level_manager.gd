@@ -13,6 +13,9 @@ signal level_completed(index: int)
 var current_level: Node = null
 var level_index: int = -1
 
+@export var end_screen_scene: PackedScene
+
+var player: Node = null
 
 # -----------------------------
 # FLOW STATE MACHINE
@@ -28,11 +31,11 @@ enum FlowState {
 
 var state: FlowState = FlowState.STARTUP
 
-
 # -----------------------------
 # START FLOW
 # -----------------------------
-func start_flow():
+func start_flow(p_player):
+	player = p_player
 	state = FlowState.STARTUP
 	level_index = -1
 	load_next_level()
@@ -50,13 +53,23 @@ func load_next_level():
 	state = FlowState.TRANSITION
 
 	level_index += 1
+	
 
+	# -----------------------------
+	# END OF RUN CHECK (NEW)
+	# -----------------------------
 	if level_index >= levels.size():
 		state = FlowState.COMPLETE
 		print("GAME COMPLETE")
+		await Fade.fade_out()
+		await show_end_screen() # NEW
+		await Fade.fade_in()
 		return
 
 	var level_data: LevelData = levels[level_index]
+	
+	print("LEVEL DATA:", level_data)
+	print("SCENE:", level_data.scene)
 
 	# -----------------------------
 	# SHOP PHASE
@@ -72,18 +85,52 @@ func load_next_level():
 	load_level(level_data)
 	state = FlowState.IN_LEVEL
 
+func show_end_screen():
+	# cleanup current level safely
+	if is_instance_valid(current_level):
+		current_level.queue_free()
+		current_level = null
+
+	# small buffer so scene teardown is clean
+	await get_tree().process_frame
+
+	if end_screen_scene == null:
+		push_error("LevelManager: end_screen_scene not assigned!")
+		return
+
+	var end_screen = end_screen_scene.instantiate()
+	level_container.add_child(end_screen)
+
+	end_screen.restart_requested.connect(_on_restart_run)
+	end_screen.menu_requested.connect(_on_return_to_menu)
+
+func _on_restart_run():
+	level_index = -1
+	RunData.reset()
+
+	load_next_level()
+	
+func _on_return_to_menu():
+	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 # -----------------------------
 # LEVEL LOADING
 # -----------------------------
 func load_level(level_data: LevelData):
 
-	# clean previous level
 	if is_instance_valid(current_level):
 		current_level.queue_free()
 
 	current_level = level_data.scene.instantiate()
 	level_container.add_child(current_level)
+
+	# IMPORTANT: inject player BEFORE starting
+	if current_level.has_method("set_player"):
+		current_level.set_player(player)
+
+	# now start level safely
+	if current_level.has_method("start_level"):
+		current_level.start_level()
 
 	emit_signal("level_started", level_index)
 

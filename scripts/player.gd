@@ -180,27 +180,33 @@ func _handle_movement(delta: float) -> void:
 # ARCADE MOVEMENT
 # --------------------------------------------------
 
-func _handle_arcade_movement(delta: float) -> void:
+func _handle_arcade_movement(delta):
 
-	var input_dir: Vector2 = Vector2.ZERO
+	var input_dir := Vector2.ZERO
 
-	input_dir.x = Input.get_action_strength("turn_right") - Input.get_action_strength("turn_left")
-	input_dir.y = Input.get_action_strength("move_down") - Input.get_action_strength("thrust")
+	input_dir.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
+	input_dir.y = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
 
 	input_dir = input_dir.normalized()
 
+	# -----------------------------
+	# INSTANT ARCADE MOVEMENT
+	# -----------------------------
 	vel = input_dir * max_speed
 
-	if input_dir.x != 0.0:
-		rotation = lerp(rotation, input_dir.x * 0.25, 10.0 * delta)
-	else:
-		rotation = lerp(rotation, 0.0, 10.0 * delta)
+	# apply movement directly
+	global_position += vel * delta
 
-	# viewport clamp (no hardcoding)
-	var vp := get_viewport_rect().size
-	global_position.x = clamp(global_position.x, 0.0, vp.x)
-	global_position.y = clamp(global_position.y, 0.0, vp.y)
+	# -----------------------------
+	# KEEP SHIP ALWAYS FACING UP
+	# -----------------------------
+	rotation = 0.0
 
+	# -----------------------------
+	# SCREEN BOUNDS
+	# -----------------------------
+	global_position.x = clamp(global_position.x, 50, 950)
+	global_position.y = clamp(global_position.y, 50, 700)
 
 # --------------------------------------------------
 # SHOOTING

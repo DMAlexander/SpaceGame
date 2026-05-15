@@ -16,10 +16,11 @@
 script = ExtResource("1_0nnu2")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-visible = false
 texture = ExtResource("1_6ryrm")
 
 [node name="Player" parent="." instance=ExtResource("1_431da")]
+
+[node name="Lasers" type="Node2D" parent="."]
 
 [node name="Camera2D" type="Camera2D" parent="."]
 script = ExtResource("5_b3pok")

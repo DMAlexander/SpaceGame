@@ -9,13 +9,12 @@ var player = null
 @onready var scroll_root: Node2D = $ScrollRoot
 @onready var enemy_container: Node2D = $ScrollRoot/EnemyContainer
 
-@onready var bg_far: Sprite2D = $BackgroundFar
-@onready var bg_near: Sprite2D = $BackgroundNear
+@onready var bg_far: Sprite2D = $ScrollRoot/BackgroundFar
+@onready var bg_near: Sprite2D = $ScrollRoot/BackgroundNear
 
 @export var scroll_speed: float = 100.0
 @export var scroll_smoothness: float = 0.08
 @export var cleanup_y: float = 800.0
-
 @export var wave_delay: float = 1.5
 
 var current_wave: int = 0
@@ -24,8 +23,7 @@ var active_wave: WaveResource = null
 var dive_timer: float = 3.0
 var dive_interval: float = 4.0
 
-var scroll_target_y: float = 0.0
-var camera_y: float = 0.0
+var scroll_y: float = 0.0
 
 
 # --------------------------------------------------
@@ -33,24 +31,40 @@ var camera_y: float = 0.0
 # --------------------------------------------------
 
 func _ready():
-	player = get_tree().get_first_node_in_group("player")
+	pass
+	# player is injected by LevelManager
+##	if player:
+##		player.control_mode = player.ControlMode.ARCADE
+##	else:
+##		push_error("ArcadeLevel: player was not injected!")
 
+##	start()
+
+func start_level():
 	if player:
-		player.set_control_mode(player.ControlMode.ARCADE)
+		player.control_mode = player.ControlMode.ARCADE
+	else:
+		push_error("ArcadeLevel: player not set!")
 
 	start()
 
+
+func set_player(p):
+	player = p
 
 func start() -> void:
 	current_wave = 0
 	run_waves()
 
 
+# --------------------------------------------------
+# FLOW
+# --------------------------------------------------
+
 func run_waves() -> void:
 	while current_wave < waves.size():
 
 		await start_wave(current_wave)
-
 		current_wave += 1
 
 		await get_tree().create_timer(wave_delay).timeout
@@ -58,8 +72,18 @@ func run_waves() -> void:
 	finish_level()
 
 
+func start_wave(index: int) -> void:
+	if index >= waves.size():
+		return
+
+	active_wave = waves[index]
+
+	await spawn_wave(active_wave)
+	await wait_for_clear()
+
+
 # --------------------------------------------------
-# UPDATE LOOP
+# UPDATE
 # --------------------------------------------------
 
 func _process(delta):
@@ -76,15 +100,12 @@ func _process(delta):
 
 
 # --------------------------------------------------
-# CAMERA SCROLL
+# SCROLLING (CLEANED)
 # --------------------------------------------------
 
 func _handle_scrolling(delta: float) -> void:
-
-	scroll_target_y += scroll_speed * delta
-	camera_y = lerp(camera_y, scroll_target_y, scroll_smoothness)
-
-	scroll_root.position.y = -camera_y
+	scroll_y += scroll_speed * delta
+	scroll_root.position.y = scroll_y
 
 
 # --------------------------------------------------
@@ -92,41 +113,25 @@ func _handle_scrolling(delta: float) -> void:
 # --------------------------------------------------
 
 func _update_parallax() -> void:
-
-	bg_far.position.y = -camera_y * 0.3
-	bg_near.position.y = -camera_y * 0.6
+	bg_far.position.y = scroll_root.position.y * 0.3
+	bg_near.position.y = scroll_root.position.y * 0.6
 
 
 # --------------------------------------------------
-# WAVE SYSTEM
+# WAVES
 # --------------------------------------------------
-
-func start_wave(index: int) -> void:
-
-	if index >= waves.size():
-		return
-
-	active_wave = waves[index]
-
-	await spawn_wave(active_wave)
-	await wait_for_clear()
-
 
 func spawn_wave(wave: WaveResource) -> void:
 
 	for i in range(wave.count):
 
-		var spawn_pos: Vector2 = get_spawn_position(wave, i, wave.count)
-		var target_pos: Vector2 = get_formation_target(wave, i, wave.count)
+		var spawn_pos: Vector2 = get_spawn_position(i, wave.count)
+		var target_pos: Vector2 = get_formation_target(i, wave.count)
 
 		spawn_enemy(spawn_pos, wave, i, target_pos)
 
 		await get_tree().create_timer(wave.delay).timeout
 
-
-# --------------------------------------------------
-# ENEMY SPAWNING
-# --------------------------------------------------
 
 func spawn_enemy(pos: Vector2, wave: WaveResource, index: int, target: Vector2):
 
@@ -140,61 +145,19 @@ func spawn_enemy(pos: Vector2, wave: WaveResource, index: int, target: Vector2):
 
 
 # --------------------------------------------------
-# SPAWN POSITIONS
+# SPAWN POSITIONS (DECOUPLED FROM CAMERA)
 # --------------------------------------------------
 
-func get_spawn_position(wave: WaveResource, index: int, total: int) -> Vector2:
+func get_spawn_position(index: int, total: int) -> Vector2:
+	var base_y := -100.0  # fixed world offset
 
-	var base_y: float = camera_y - 50.0
-
-	match wave.pattern:
-
-		WaveResource.Pattern.LINE:
-			return Vector2(200 + index * wave.spacing, base_y)
-
-		WaveResource.Pattern.WIDE:
-			return Vector2(randf_range(50, 950), base_y)
-
-		WaveResource.Pattern.CENTER:
-			return Vector2(500, base_y)
-
-		WaveResource.Pattern.V:
-			var mid: float = float(total) / 2.0
-			var diff: float = float(index) - mid
-
-			var offset: float = diff * wave.spacing
-			var depth: float = abs(diff) * (wave.spacing * 0.5)
-
-			return Vector2(500 + offset, base_y - depth)
-
-	return Vector2(500, base_y)
+	return Vector2(200 + index * 80, base_y)
 
 
-func get_formation_target(wave: WaveResource, index: int, total: int) -> Vector2:
+func get_formation_target(index: int, total: int) -> Vector2:
+	var base_y := 200.0
 
-	var base_y: float = 200.0
-
-	match wave.pattern:
-
-		WaveResource.Pattern.LINE:
-			return Vector2(200 + index * wave.spacing, base_y)
-
-		WaveResource.Pattern.WIDE:
-			return Vector2(randf_range(50, 950), base_y)
-
-		WaveResource.Pattern.CENTER:
-			return Vector2(500, base_y)
-
-		WaveResource.Pattern.V:
-			var mid: float = float(total) / 2.0
-			var diff: float = float(index) - mid
-
-			var offset: float = diff * wave.spacing
-			var depth: float = abs(diff) * (wave.spacing * 0.5)
-
-			return Vector2(500 + offset, base_y - depth)
-
-	return Vector2(500, base_y)
+	return Vector2(200 + index * 80, base_y)
 
 
 # --------------------------------------------------
@@ -202,13 +165,12 @@ func get_formation_target(wave: WaveResource, index: int, total: int) -> Vector2
 # --------------------------------------------------
 
 func cleanup_enemies() -> void:
-
 	for e in enemy_container.get_children():
 
 		if not is_instance_valid(e):
 			continue
 
-		if e.global_position.y > camera_y + cleanup_y:
+		if e.global_position.y > scroll_y + cleanup_y:
 			e.queue_free()
 
 
@@ -217,19 +179,17 @@ func cleanup_enemies() -> void:
 # --------------------------------------------------
 
 func wait_for_clear() -> void:
-
 	while enemy_container.get_child_count() > 0:
 		await get_tree().process_frame
 
 
 func finish_level() -> void:
-
 	await get_tree().create_timer(1.0).timeout
 	emit_signal("completed")
 
 
 # --------------------------------------------------
-# DIVE SYSTEM
+# DIVE SYSTEM (UNCHANGED BUT SAFE)
 # --------------------------------------------------
 
 func trigger_random_dive() -> void:
@@ -256,13 +216,5 @@ func trigger_random_dive() -> void:
 	var enemy = candidates.pick_random()
 
 	if enemy.has_method("start_dive"):
-		var target: Vector2 = get_dive_target()
+		var target = player.global_position if player else Vector2(500, 500)
 		enemy.start_dive(target, active_wave.dive_speed)
-
-
-func get_dive_target() -> Vector2:
-
-	if player:
-		return player.global_position
-
-	return Vector2(500, 500)
