@@ -205,8 +205,18 @@ func _handle_arcade_movement(delta):
 	# -----------------------------
 	# SCREEN BOUNDS
 	# -----------------------------
-	global_position.x = clamp(global_position.x, 50, 950)
-	global_position.y = clamp(global_position.y, 50, 700)
+	var bounds = get_play_bounds()
+
+	global_position.x = clamp(global_position.x, bounds.min.x, bounds.max.x)
+	global_position.y = clamp(global_position.y, bounds.min.y, bounds.max.y)
+
+func get_play_bounds() -> Dictionary:
+	var size = get_viewport_rect().size
+
+	return {
+		"min": Vector2(50, size.y * 0.35),
+		"max": Vector2(size.x - 50, size.y - 80)
+	}
 
 # --------------------------------------------------
 # SHOOTING

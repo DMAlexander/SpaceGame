@@ -43,6 +43,10 @@ func _ready():
 func start_level():
 	if player:
 		player.control_mode = player.ControlMode.ARCADE
+		player.global_position = Vector2(
+			get_viewport_rect().size.x * 0.5,
+			get_viewport_rect().size.y * 0.75
+		)
 	else:
 		push_error("ArcadeLevel: player not set!")
 
