@@ -1,0 +1,39 @@
+[gd_scene load_steps=2 format=3 uid="uid://brjjien1tredp"]
+
+[ext_resource type="Script" uid="uid://bmf58sva14tu1" path="res://scenes/shop_scene/shop_scene.gd" id="1_4g1fx"]
+
+[node name="ShopScene" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_4g1fx")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "SHOP SCREEN"
+
+[node name="ScoreLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "SCORE LABEL"
+
+[node name="DamageButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Damage"
+
+[node name="FireRateButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="HealthButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ContinueButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2

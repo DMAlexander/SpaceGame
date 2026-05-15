@@ -5,6 +5,8 @@ extends Area2D
 
 var dir: Vector2
 
+var damage: int = 1
+
 func _ready():
 	add_to_group("laser")
 	connect("body_entered", _on_hit)
@@ -16,5 +18,5 @@ func _process(delta):
 
 func _on_hit(body):
 	if body.has_method("apply_damage"):
-		body.apply_damage(1)
+		body.apply_damage(damage)
 	queue_free()

@@ -12,7 +12,7 @@ extends Node2D
 @onready var level_manager = $LevelManager
 
 var laser_scene = preload("res://scenes/laser.tscn")
-var score: int = 0
+##var score: int = 0
 var transitioning := false
 
 func _ready():
@@ -35,7 +35,7 @@ func _ready():
 
 # ---------------- SHOOTING ----------------
 
-func _on_shot_fired(origin, dir):
+func _on_shot_fired(origin, dir, damage):
 	var l = laser_scene.instantiate()
 	l.global_position = origin
 	l.dir = dir
@@ -59,8 +59,8 @@ func _on_player_damaged(current, max):
 func _on_enemy_died(pos: Vector2, points: int):
 	var final_points = fx_manager.register_kill(points, pos)
 
-	score += final_points
-	score_label.text = str(score)
+	RunData.score += final_points
+	score_label.text = str(RunData.score)
 
 ##func _on_level_completed(index: int):
 ##	if transitioning:

@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-signal shot_fired(origin, direction)
+signal shot_fired(origin, direction, damage)
 signal health_changed(current, max)
 signal died
 signal boost_changed(value: float)
@@ -15,9 +15,10 @@ enum ControlMode {
 @export var max_speed := 420.0
 @export var damping := 0.985
 @export var rotation_speed := 4.0
-@export var fire_rate := 8.0
-
-@export var max_health := 5
+@export var base_fire_rate := 8.0
+@export var base_max_health := 5
+var fire_rate: float
+var max_health: int
 var health: int
 
 # Boost
@@ -48,10 +49,27 @@ var control_mode: ControlMode = ControlMode.FREE_ROAM
 # --------------------------------------------------
 
 func _ready():
+	refresh_run_stats()
+
 	health = max_health
 	emit_signal("health_changed", health, max_health)
 	emit_signal("boost_changed", boost_energy)
 
+func refresh_run_stats():
+
+	var old_max := max_health
+
+	fire_rate = base_fire_rate + RunData.fire_rate_bonus
+
+	max_health = base_max_health + RunData.max_health_bonus
+
+	# preserve current health proportionally
+	if old_max > 0:
+		health += (max_health - old_max)
+
+	health = clamp(health, 0, max_health)
+
+	emit_signal("health_changed", health, max_health)
 
 func set_control_mode(mode: ControlMode) -> void:
 	control_mode = mode
@@ -201,8 +219,9 @@ func _handle_shooting(delta: float) -> void:
 
 	var origin: Vector2 = muzzle.global_position
 	var dir: Vector2 = Vector2.UP.rotated(global_rotation)
+	var damage := 1 + RunData.damage_bonus
 
-	emit_signal("shot_fired", origin, dir)
+	emit_signal("shot_fired", origin, dir, damage)
 
 
 # --------------------------------------------------
