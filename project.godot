@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="project-space-game-second-attempt"
-run/main_scene="uid://bp2xkkktijuu7"
+run/main_scene="uid://dgbfbcxbqty7m"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
 RunData="*res://systems/run_data.gd"
+Fade="*res://scenes/fade_layer/fade_layer.tscn"
 
 [display]
 

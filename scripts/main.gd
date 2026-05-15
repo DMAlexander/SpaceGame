@@ -16,7 +16,8 @@ var laser_scene = preload("res://scenes/laser.tscn")
 var transitioning := false
 
 func _ready():
-
+	await get_tree().process_frame  # ensures scene fully enters tree
+	await Fade.fade_in(0.4)
 	# ---------------- PLAYER SIGNALS ----------------
 
 	player.shot_fired.connect(_on_shot_fired)
