@@ -16,23 +16,22 @@ var score: int = 0
 var transitioning := false
 
 func _ready():
+
 	# ---------------- PLAYER SIGNALS ----------------
+
 	player.shot_fired.connect(_on_shot_fired)
-##	player.health_changed.connect(_on_health_changed)
+
 	player.health_changed.connect(ui._on_health_changed)
 	player.health_changed.connect(_on_player_damaged)
 
 	player.boost_changed.connect(ui._on_boost_changed)
 	player.speed_changed.connect(ui._on_speed_changed)
-##	enemy.died.connect(_on_enemy_died)
 
-	level_manager.level_completed.connect(_on_level_completed)
+	# ---------------- LEVEL FLOW ----------------
 
-	level_manager.load_level(preload("res://scenes/levels/arcade_level_01.tscn"))
 	level_manager.level_started.connect(_on_level_started)
-	
-##	for e in get_tree().get_nodes_in_group("enemy"):
-##		e.died.connect(_on_enemy_died)
+
+	level_manager.start_flow()
 
 # ---------------- SHOOTING ----------------
 
@@ -63,9 +62,9 @@ func _on_enemy_died(pos: Vector2, points: int):
 	score += final_points
 	score_label.text = str(score)
 
-func _on_level_completed(index: int):
-	if transitioning:
-		return
+##func _on_level_completed(index: int):
+##	if transitioning:
+##		return
 
-	transitioning = true
-	level_manager.next_level(preload("res://scenes/levels/free_roam_01.tscn"))
+##	transitioning = true
+##	level_manager.next_level(preload("res://scenes/levels/free_roam_01.tscn"))
