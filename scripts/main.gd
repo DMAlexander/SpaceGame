@@ -134,7 +134,7 @@ func _on_next_level_pressed():
 
 	transitioning = false
 
-	level_manager.advance_to_next_level()
+	level_manager.load_next_level()
 
 func _on_return_to_menu():
 	Engine.time_scale = 1.0

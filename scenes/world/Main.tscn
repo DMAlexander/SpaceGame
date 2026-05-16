@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://bp2xkkktijuu7"]
+[gd_scene load_steps=15 format=3 uid="uid://bp2xkkktijuu7"]
 
 [ext_resource type="Script" uid="uid://ce1tq6cx2qamk" path="res://scripts/main.gd" id="1_0nnu2"]
 [ext_resource type="Texture2D" uid="uid://cbs5ptw6o4y8u" path="res://Foobar.jpg" id="1_6ryrm"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://cygclflaq0a8" path="res://level_data.gd" id="9_56r3f"]
 [ext_resource type="Resource" uid="uid://bdedcbyvpdb5a" path="res://arcade_01_data.tres" id="10_g1khb"]
 [ext_resource type="PackedScene" uid="uid://brjjien1tredp" path="res://scenes/shop_scene/shop_scene.tscn" id="11_g1khb"]
+[ext_resource type="PackedScene" uid="uid://decpv0jcjx8ul" path="res://scenes/end_screen/end_screen.tscn" id="11_om08x"]
 [ext_resource type="PackedScene" uid="uid://dpdihqbii044f" path="res://scenes/game_over/game_over_screen.tscn" id="12_g1khb"]
 [ext_resource type="PackedScene" uid="uid://dxlttk28lvmfi" path="res://scenes/level_completed/level_completed.tscn" id="13_ovuor"]
 
@@ -40,6 +41,7 @@ script = ExtResource("8_vanwo")
 level_container_path = NodePath("../LevelContainer")
 levels = Array[ExtResource("9_56r3f")]([ExtResource("10_g1khb")])
 shop_scene = ExtResource("11_g1khb")
+end_screen_scene = ExtResource("11_om08x")
 
 [node name="LevelContainer" type="Node2D" parent="."]
 
