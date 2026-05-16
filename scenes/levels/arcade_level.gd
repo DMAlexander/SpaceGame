@@ -259,6 +259,7 @@ func wait_for_clear() -> void:
 func finish_level() -> void:
 	await get_tree().create_timer(0.5).timeout
 	emit_signal("level_completed", level_index)
+	await get_tree().process_frame
 
 
 # ==================================================

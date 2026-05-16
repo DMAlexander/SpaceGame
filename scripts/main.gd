@@ -55,6 +55,7 @@ func _ready():
 
 	level_manager.start_flow(player)
 	ui._on_bombs_changed(player.bombs, player.max_bombs)
+	level_manager.set_ui_references(level_completed_ui)
 
 
 # ==================================================
@@ -95,27 +96,35 @@ func _on_level_started(index: int):
 # LEVEL COMPLETE
 # ==================================================
 
-func _on_level_completed(index: int):
-	if transitioning:
-		return
+##func _on_level_completed(index: int):
+##	if transitioning:
+##		return
 
-	transitioning = true
+##	transitioning = true
 
 	# stop gameplay
-	Engine.time_scale = 0.1
+##	Engine.time_scale = 0.1
 ##	get_tree().paused = true
 	
-	level_completed_ui.visible = true
-	level_completed_ui.set_score(RunData.score)
+##	level_completed_ui.visible = true
+##	level_completed_ui.set_score(RunData.score)
 
-	if not level_completed_ui.next_level_pressed.is_connected(_on_next_level_pressed):
-		level_completed_ui.next_level_pressed.connect(_on_next_level_pressed)
+##	if not level_completed_ui.next_level_pressed.is_connected(_on_next_level_pressed):
+##		level_completed_ui.next_level_pressed.connect(_on_next_level_pressed)
 
-	if not level_completed_ui.menu_pressed.is_connected(_on_return_to_menu):
-		level_completed_ui.menu_pressed.connect(_on_return_to_menu)
+##	if not level_completed_ui.menu_pressed.is_connected(_on_return_to_menu):
+##		level_completed_ui.menu_pressed.connect(_on_return_to_menu)
 	
 	## Show level completed screen
 	
+	
+func _on_level_completed(index: int):
+
+	# ONLY visual pause, no flow control
+	Engine.time_scale = 0.1
+
+	level_completed_ui.visible = true
+	level_completed_ui.set_score(RunData.score)
 
 	# show UI
 #	gos.visible = true
@@ -127,14 +136,21 @@ func _on_level_completed(index: int):
 # NEXT LEVEL (called by UI button)
 # ==================================================
 
+##func _on_next_level_pressed():
+##	Engine.time_scale = 1.0
+##	get_tree().paused = false
+##	level_completed_ui.visible = false
+
+##	transitioning = false
+
+##	level_manager.load_next_level()
+	
 func _on_next_level_pressed():
+
 	Engine.time_scale = 1.0
 	get_tree().paused = false
+
 	level_completed_ui.visible = false
-
-	transitioning = false
-
-	level_manager.load_next_level()
 
 func _on_return_to_menu():
 	Engine.time_scale = 1.0

@@ -9,11 +9,12 @@ signal level_completed(index: int)
 @export var levels: Array[LevelData] = []
 @export var shop_scene: PackedScene
 @export var end_screen_scene: PackedScene
-
+##@onready var level_completed_ui: Control = $UI/LevelCompleted
 var current_level: Node = null
 var level_index: int = -1
 var player: Node = null
 
+var level_completed_ui = null
 
 # -----------------------------
 # FLOW STATE MACHINE
@@ -40,43 +41,34 @@ func start_flow(p_player):
 	level_index = -1
 	load_next_level()
 
+func set_ui_references(ui_node):
+	level_completed_ui = ui_node
 
 # ==================================================
 # MAIN FLOW CONTROLLER
 # ==================================================
 
 func load_next_level():
-
+	
 	if state == FlowState.IN_SHOP:
 		return
 
-	state = FlowState.TRANSITION
-	level_index += 1
-
-	# -----------------------------
-	# END OF GAME
-	# -----------------------------
-	if level_index >= levels.size():
-		state = FlowState.COMPLETE
-		await Fade.fade_out()
-		await show_end_screen()
-		await Fade.fade_in()
+	if state == FlowState.TRANSITION:
 		return
 
-	var level_data: LevelData = levels[level_index]
+	level_index += 1
 
-	# -----------------------------
-	# SHOP PHASE
-	# -----------------------------
-	if level_data.has_shop_after:
-		state = FlowState.IN_SHOP
-		await load_shop()
+	# END OF RUN
+	if level_index >= levels.size():
+		state = FlowState.COMPLETE
+		await show_end_screen()
+		return
 
-	# -----------------------------
-	# LEVEL PHASE
-	# -----------------------------
+	var level_data = levels[level_index]
+
 	state = FlowState.LEVEL_LOADING
 	load_level(level_data)
+
 	state = FlowState.IN_LEVEL
 
 
@@ -115,9 +107,56 @@ func load_level(level_data: LevelData):
 
 func _on_level_completed(index: int):
 
-##	emit_signal("level_completed", index)
 	state = FlowState.TRANSITION
+
+	await show_level_completed_screen()
+
+	var level_data = levels[index]
+
+	if level_data.has_shop_after:
+		await load_shop()
+
 	load_next_level()
+
+func show_level_completed_screen() -> void:
+
+	# Optional safety: stop gameplay activity
+##	get_tree().paused = true
+	Engine.time_scale = 0.1
+
+	# Instantiate or show UI
+##	var ui = level_container.get_node_or_null("LevelCompleted")
+
+	if level_completed_ui == null:
+		push_error("LevelCompleted UI not found in scene tree!")
+		return
+
+	level_completed_ui.visible = true
+	level_completed_ui.set_score(RunData.score)
+
+	# Make sure we don't double-connect
+	if not level_completed_ui.next_level_pressed.is_connected(_on_next_level_pressed):
+		level_completed_ui.next_level_pressed.connect(_on_next_level_pressed)
+
+	if not level_completed_ui.menu_pressed.is_connected(_on_return_to_menu):
+		level_completed_ui.menu_pressed.connect(_on_return_to_menu)
+
+	# IMPORTANT: wait until player chooses
+	await level_completed_ui.next_level_pressed
+
+func _on_next_level_pressed():
+
+	Engine.time_scale = 1.0
+	get_tree().paused = false
+
+	level_completed_ui.visible = false
+
+func show_level_completed(score: int) -> void:
+
+	level_completed_ui.visible = true
+	level_completed_ui.set_score(score)
+
+	get_tree().paused = true
 
 
 # ==================================================
@@ -133,9 +172,13 @@ func load_shop():
 	var shop = shop_scene.instantiate()
 	level_container.add_child(shop)
 
+	state = FlowState.IN_SHOP
+
 	await shop.shop_completed
 
 	shop.queue_free()
+
+	state = FlowState.TRANSITION
 
 
 # ==================================================
