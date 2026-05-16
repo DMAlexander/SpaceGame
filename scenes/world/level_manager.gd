@@ -60,7 +60,7 @@ func load_next_level():
 	# -----------------------------
 	if level_index >= levels.size():
 		state = FlowState.COMPLETE
-		print("GAME COMPLETE")
+		#print("GAME COMPLETE")
 		await Fade.fade_out()
 		await show_end_screen() # NEW
 		await Fade.fade_in()
@@ -68,8 +68,8 @@ func load_next_level():
 
 	var level_data: LevelData = levels[level_index]
 	
-	print("LEVEL DATA:", level_data)
-	print("SCENE:", level_data.scene)
+	#print("LEVEL DATA:", level_data)
+	#print("SCENE:", level_data.scene)
 
 	# -----------------------------
 	# SHOP PHASE
@@ -117,7 +117,7 @@ func _on_return_to_menu():
 # LEVEL LOADING
 # -----------------------------
 func load_level(level_data: LevelData):
-	print("PLAYER BEING INJECTED:", player)
+#	print("PLAYER BEING INJECTED:", player)
 
 	if is_instance_valid(current_level):
 		current_level.queue_free()

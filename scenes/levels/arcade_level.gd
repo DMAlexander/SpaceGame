@@ -22,10 +22,10 @@ var player = null
 # --------------------------------------------------
 
 @onready var parallax_root: Node2D = $ParallaxRoot
-
 @onready var bg_far: TextureRect = $ParallaxRoot/BackgroundFar
 @onready var bg_near: TextureRect = $ParallaxRoot/BackgroundNear
 @onready var pb = $ParallaxBackground
+
 # --------------------------------------------------
 # WAVE SETTINGS
 # --------------------------------------------------
@@ -46,7 +46,8 @@ var dive_interval: float = 4.0
 # SCROLL SETTINGS
 # --------------------------------------------------
 
-@export var scroll_speed: float = 100.0
+##@export var scroll_speed: float = 100.0
+@export var scroll_speed: float = 20.0
 @export var scroll_smoothness: float = 0.08
 @export var cleanup_y: float = 800.0
 
@@ -64,37 +65,30 @@ func _ready():
 
 func set_player(p):
 	player = p
-	print("PLAYER RECEIVED:", player)
+	#print("PLAYER RECEIVED:", player)
 
 
 func start_level():
-	print("PLAYER INSIDE START_LEVEL:", player)
-	
-	print("VIEWPORT:", get_viewport_rect().size)
-	print("PLAYER SPAWN:", player.global_position)
+	#print("START LEVEL")
+	#print("PLAYER:", player)
 
 	var screen_size = get_viewport_rect().size
 
-	# --------------------------------------------------
+	# ------------------------------
 	# PLAYER SETUP
-	# --------------------------------------------------
-
+	# ------------------------------
 	if player:
-
 		player.control_mode = player.ControlMode.ARCADE
-
 		player.global_position = Vector2(
 			screen_size.x * 0.5,
 			screen_size.y * 0.82
 		)
-
 	else:
 		push_error("ArcadeLevel: player not set!")
 
-	# --------------------------------------------------
+	# ------------------------------
 	# BACKGROUND SETUP
-	# --------------------------------------------------
-
+	# ------------------------------
 	bg_far.size = screen_size
 	bg_near.size = screen_size
 
@@ -105,23 +99,21 @@ func start_level():
 
 
 func start() -> void:
-
 	current_wave = 0
 	run_waves()
 
 
 # ==================================================
-# MAIN UPDATE
+# MAIN LOOP
 # ==================================================
 
 func _process(delta):
-	
-	pb.scroll_offset.y += delta*scroll_speed
+
+	pb.scroll_offset.y += delta * scroll_speed
 	if pb.scroll_offset.y >= 960:
 		pb.scroll_offset.y = 0
 
 	dive_timer -= delta
-
 	if dive_timer <= 0.0:
 		trigger_random_dive()
 		dive_timer = dive_interval
@@ -136,7 +128,6 @@ func _process(delta):
 # ==================================================
 
 func _handle_scrolling(delta: float) -> void:
-
 	scroll_y += scroll_speed * delta
 
 	camera_y = lerp(
@@ -153,30 +144,26 @@ func _handle_scrolling(delta: float) -> void:
 # ==================================================
 
 func _update_parallax(delta: float) -> void:
-
 	bg_far.position.y += scroll_speed * 0.15 * delta
 	bg_near.position.y += scroll_speed * 0.35 * delta
 
 
 # ==================================================
-# WAVE FLOW
+# WAVES
 # ==================================================
 
 func run_waves() -> void:
+	print("RUN WAVES:", waves.size())
 
 	while current_wave < waves.size():
-
 		await start_wave(current_wave)
-
 		current_wave += 1
-
 		await get_tree().create_timer(wave_delay).timeout
 
 	finish_level()
 
 
 func start_wave(index: int) -> void:
-
 	if index >= waves.size():
 		return
 
@@ -201,40 +188,35 @@ func spawn_wave(wave: WaveResource) -> void:
 
 		await get_tree().create_timer(wave.delay).timeout
 
-
 func spawn_enemy(
 	pos: Vector2,
 	wave: WaveResource,
 	index: int,
 	target: Vector2
 ):
+	if wave.enemy_scene == null:
+		push_error("Wave missing enemy_scene!")
+		return
 
 	var e = wave.enemy_scene.instantiate()
 
+	# Set before adding for stability
 	e.global_position = pos
-
-	if e.has_method("setup_formation"):
-		e.setup_formation(index, wave, target)
 
 	enemy_container.add_child(e)
 
+	if e.has_method("setup_formation"):
+		e.setup_formation(index, wave, target)
 
 # ==================================================
 # FORMATIONS
 # ==================================================
 
 func get_spawn_position(index: int, total: int) -> Vector2:
-
-	var screen_size = get_viewport_rect().size
-
-	return Vector2(
-		(screen_size.x * 0.5) + ((index - total * 0.5) * 80.0),
-		-camera_y - 150.0
-	)
+	return Vector2(200, 200)
 
 
 func get_formation_target(index: int, total: int) -> Vector2:
-
 	var screen_size = get_viewport_rect().size
 
 	return Vector2(
@@ -248,7 +230,6 @@ func get_formation_target(index: int, total: int) -> Vector2:
 # ==================================================
 
 func cleanup_enemies() -> void:
-
 	for e in enemy_container.get_children():
 
 		if not is_instance_valid(e):
@@ -263,13 +244,11 @@ func cleanup_enemies() -> void:
 # ==================================================
 
 func wait_for_clear() -> void:
-
 	while enemy_container.get_child_count() > 0:
 		await get_tree().process_frame
 
 
 func finish_level() -> void:
-
 	await get_tree().create_timer(1.0).timeout
 	emit_signal("completed")
 
@@ -289,7 +268,6 @@ func trigger_random_dive() -> void:
 	var candidates: Array = []
 
 	for e in enemy_container.get_children():
-
 		if not is_instance_valid(e):
 			continue
 
@@ -303,11 +281,7 @@ func trigger_random_dive() -> void:
 
 	if enemy.has_method("start_dive"):
 
-		var target = (
-			player.global_position
-			if player
-			else Vector2(500, 500)
-		)
+		var target = player.global_position if player else Vector2(500, 500)
 
 		enemy.start_dive(
 			target,
