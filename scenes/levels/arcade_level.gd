@@ -150,8 +150,8 @@ func _handle_scrolling(delta: float) -> void:
 
 func _update_parallax(delta: float) -> void:
 
-	bg_far.texture_offset.y += scroll_speed * 0.15 * delta
-	bg_near.texture_offset.y += scroll_speed * 0.35 * delta
+	bg_far.position.y += scroll_speed * 0.15 * delta
+	bg_near.position.y += scroll_speed * 0.35 * delta
 
 
 # ==================================================
