@@ -42,6 +42,22 @@ var control_mode: ControlMode = ControlMode.FREE_ROAM
 @onready var muzzle: Marker2D = $Muzzle
 @onready var sprite: Sprite2D = $Sprite2D
 
+### BOMB ###
+signal bomb_used(position: Vector2)
+signal bombs_changed(current: int, max: int)
+
+# ==================================================
+# BOMB SETTINGS
+# ==================================================
+
+@export var max_bombs := 3
+@export var bomb_damage := 5
+@export var bomb_radius := 220.0
+@export var bomb_recharge_time := 8.0
+
+var bombs := 3
+var bomb_recharge_timer := 0.0
+
 
 # --------------------------------------------------
 # INIT
@@ -80,6 +96,20 @@ func _physics_process(delta: float) -> void:
 
 	emit_signal("speed_changed", vel.length())
 	_handle_invulnerability(delta)
+	
+	# --------------------------------------------------
+	# BOMB RECHARGE
+	# --------------------------------------------------
+
+	if bombs < max_bombs:
+
+		bomb_recharge_timer += delta
+
+		if bomb_recharge_timer >= bomb_recharge_time:
+			bomb_recharge_timer = 0.0
+			bombs += 1
+
+			emit_signal("bombs_changed", bombs, max_bombs)
 
 
 # --------------------------------------------------
@@ -168,7 +198,9 @@ func _handle_movement(delta: float) -> void:
 func _handle_shooting(delta: float) -> void:
 
 	fire_cd -= delta
-
+	
+	if Input.is_action_just_pressed("secondary_fire"):
+		use_bomb()
 	if not Input.is_action_pressed("shoot"):
 		return
 	if fire_cd > 0.0:
@@ -182,6 +214,17 @@ func _handle_shooting(delta: float) -> void:
 
 	emit_signal("shot_fired", origin, dir, damage)
 
+func use_bomb():
+
+	if bombs <= 0:
+		return
+
+	bombs -= 1
+	bomb_recharge_timer = 0.0
+
+	emit_signal("bombs_changed", bombs, max_bombs)
+	var bomb_pos = global_position + Vector2.UP * 500.0
+	emit_signal("bomb_used", bomb_pos)
 
 # --------------------------------------------------
 # DAMAGE (UNCHANGED)

@@ -6,7 +6,8 @@ extends Node2D
 @onready var score_label: Label = $UI/ScoreLabel
 @onready var fx_manager: Node = $FXManager
 @onready var level_manager = $LevelManager
-@onready var gos: Control = $GameOverScreen
+@onready var gos: Control = $UI/GameOverScreen
+@onready var level_completed_ui: Control = $UI/LevelCompleted
 
 var laser_scene = preload("res://scenes/laser.tscn")
 
@@ -37,16 +38,27 @@ func _ready():
 
 	if not player.speed_changed.is_connected(ui._on_speed_changed):
 		player.speed_changed.connect(ui._on_speed_changed)
+		
+			## BOMB ##
+	# ---------------- BOMB ----------------
+	if not player.bomb_used.is_connected(_on_bomb_used):
+		player.bomb_used.connect(_on_bomb_used)
+		
+	if not player.bombs_changed.is_connected(ui._on_bombs_changed):
+		player.bombs_changed.connect(ui._on_bombs_changed)
 
 	# ---------------- LEVEL FLOW ----------------
 	if not level_manager.level_started.is_connected(_on_level_started):
 		level_manager.level_started.connect(_on_level_started)
+		
+
 
 	level_manager.start_flow(player)
+	ui._on_bombs_changed(player.bombs, player.max_bombs)
 
 
 # ==================================================
-# LEVEL HOOK
+# LEVEL START
 # ==================================================
 
 func _on_level_started(index: int):
@@ -59,22 +71,84 @@ func _on_level_started(index: int):
 		push_error("No current level found!")
 		return
 
-	# bind projectile container dynamically
+	# ---------------- PROJECTILES ----------------
 	lasers = current_level.get_node_or_null("ProjectileContainer")
 
 	if lasers == null:
 		push_error("ProjectileContainer missing in current level!")
 		return
 
-	# reconnect enemies safely (avoid duplicate connections)
+	# ---------------- ENEMIES ----------------
 	for e in get_tree().get_nodes_in_group("enemy"):
 
-		if not e.has_signal("died"):
-			continue
-
-		if not e.died.is_connected(_on_enemy_died):
+		if e.has_signal("died") and not e.died.is_connected(_on_enemy_died):
 			e.died.connect(_on_enemy_died)
 
+	# ---------------- LEVEL COMPLETE ----------------
+	if current_level.level_completed.is_connected(_on_level_completed):
+		current_level.level_completed.disconnect(_on_level_completed)
+
+	current_level.level_completed.connect(_on_level_completed)
+
+
+# ==================================================
+# LEVEL COMPLETE
+# ==================================================
+
+func _on_level_completed(index: int):
+	if transitioning:
+		return
+
+	transitioning = true
+
+	# stop gameplay
+	Engine.time_scale = 0.1
+##	get_tree().paused = true
+	
+	level_completed_ui.visible = true
+	level_completed_ui.set_score(RunData.score)
+
+	if not level_completed_ui.next_level_pressed.is_connected(_on_next_level_pressed):
+		level_completed_ui.next_level_pressed.connect(_on_next_level_pressed)
+
+	if not level_completed_ui.menu_pressed.is_connected(_on_return_to_menu):
+		level_completed_ui.menu_pressed.connect(_on_return_to_menu)
+	
+	## Show level completed screen
+	
+
+	# show UI
+#	gos.visible = true
+#	gos.set_score(RunData.score)
+#	gos.set_high_score(RunData.score)
+
+
+# ==================================================
+# NEXT LEVEL (called by UI button)
+# ==================================================
+
+func _on_next_level_pressed():
+	Engine.time_scale = 1.0
+	get_tree().paused = false
+	level_completed_ui.visible = false
+
+	transitioning = false
+
+	level_manager.advance_to_next_level()
+
+func _on_return_to_menu():
+	Engine.time_scale = 1.0
+	transitioning = true
+
+	get_tree().paused = false
+
+	# optional safety reset
+	RunData.reset_run()
+
+	# small buffer so everything unsubscribes cleanly
+	await get_tree().process_frame
+
+	get_tree().change_scene_to_file("res://scenes/main_menu/main_menu.tscn")
 
 # ==================================================
 # SHOOTING
@@ -92,12 +166,58 @@ func _on_shot_fired(origin, dir, damage):
 
 	lasers.add_child(l)
 
+# ==================================================
+# BOMB
+# ==================================================
+
+func _on_bomb_used(pos: Vector2):
+
+	# --------------------------------------------------
+	# DEBUG
+	# --------------------------------------------------
+
+	print("BOMB USED AT:", pos)
+
+	# --------------------------------------------------
+	# DEBUG VISUAL
+	# --------------------------------------------------
+
+##	var debug = preload("res://scenes/fx/bomb_debug.tscn").instantiate()
+	var debug = preload("res://scenes/bomb_debug/bomb_debug.tscn").instantiate()
+	debug.global_position = pos
+	add_child(debug)
+
+	# --------------------------------------------------
+	# GAME FEEL
+	# --------------------------------------------------
+
+	shaker.shake(12.0)
+	fx_manager.hit_pause(0.12)
+
+	# --------------------------------------------------
+	# DAMAGE ENEMIES
+	# --------------------------------------------------
+
+	for e in get_tree().get_nodes_in_group("enemy"):
+
+		if not is_instance_valid(e):
+			continue
+
+		var dist = e.global_position.distance_to(pos)
+
+		if dist <= player.bomb_radius:
+
+			print("HIT ENEMY:", e.name)
+
+			if e.has_method("apply_damage"):
+				e.apply_damage(player.bomb_damage)
 
 # ==================================================
-# HEALTH / COMBAT FEEDBACK
+# COMBAT / SCORE
 # ==================================================
 
 func _on_player_damaged(current, max):
+	Engine.time_scale = 1.0
 	shaker.shake(6.0)
 	fx_manager.hit_pause(0.05)
 

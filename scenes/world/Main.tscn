@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://bp2xkkktijuu7"]
+[gd_scene load_steps=14 format=3 uid="uid://bp2xkkktijuu7"]
 
 [ext_resource type="Script" uid="uid://ce1tq6cx2qamk" path="res://scripts/main.gd" id="1_0nnu2"]
 [ext_resource type="Texture2D" uid="uid://cbs5ptw6o4y8u" path="res://Foobar.jpg" id="1_6ryrm"]
@@ -12,6 +12,7 @@
 [ext_resource type="Resource" uid="uid://bdedcbyvpdb5a" path="res://arcade_01_data.tres" id="10_g1khb"]
 [ext_resource type="PackedScene" uid="uid://brjjien1tredp" path="res://scenes/shop_scene/shop_scene.tscn" id="11_g1khb"]
 [ext_resource type="PackedScene" uid="uid://dpdihqbii044f" path="res://scenes/game_over/game_over_screen.tscn" id="12_g1khb"]
+[ext_resource type="PackedScene" uid="uid://dxlttk28lvmfi" path="res://scenes/level_completed/level_completed.tscn" id="13_ovuor"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_0nnu2")
@@ -83,3 +84,12 @@ text = "0000"
 
 [node name="GameOverScreen" parent="UI" instance=ExtResource("12_g1khb")]
 visible = false
+
+[node name="LevelCompleted" parent="UI" instance=ExtResource("13_ovuor")]
+visible = false
+
+[node name="BombLabel" type="Label" parent="UI"]
+offset_left = 9.0
+offset_top = 61.0
+offset_right = 49.0
+offset_bottom = 84.0

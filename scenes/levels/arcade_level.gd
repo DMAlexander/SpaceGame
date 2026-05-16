@@ -25,6 +25,7 @@ var player = null
 @onready var bg_far: TextureRect = $ParallaxRoot/BackgroundFar
 @onready var bg_near: TextureRect = $ParallaxRoot/BackgroundNear
 @onready var pb = $ParallaxBackground
+@export var level_index: int = 0
 
 # --------------------------------------------------
 # WAVE SETTINGS
@@ -54,6 +55,8 @@ var dive_interval: float = 4.0
 var scroll_y: float = 0.0
 var camera_y: float = 0.0
 
+signal level_completed
+
 
 # ==================================================
 # INIT
@@ -68,7 +71,8 @@ func set_player(p):
 	#print("PLAYER RECEIVED:", player)
 
 
-func start_level():
+func start_level(index: int):
+	level_index = index
 	#print("START LEVEL")
 	#print("PLAYER:", player)
 
@@ -249,8 +253,8 @@ func wait_for_clear() -> void:
 
 
 func finish_level() -> void:
-	await get_tree().create_timer(1.0).timeout
-	emit_signal("completed")
+	await get_tree().create_timer(0.5).timeout
+	emit_signal("level_completed", level_index)
 
 
 # ==================================================

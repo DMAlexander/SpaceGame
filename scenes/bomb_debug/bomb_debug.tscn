@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cqsmspkxgs5ed"]
+
+[ext_resource type="Script" uid="uid://dqfwskm8egdjo" path="res://scenes/bomb_debug/bomb_debug.gd" id="1_v57rf"]
+
+[node name="BombDebug" type="Node2D"]
+script = ExtResource("1_v57rf")

@@ -3,6 +3,7 @@ extends Node
 @onready var boost_bar = $BoostBar
 @onready var speed_label = $SpeedLabel
 @onready var health_bar: ProgressBar = $HealthBar
+@onready var bomb_label: Label = $BombLabel
 
 # ---------------- BOOST ----------------
 
@@ -19,3 +20,16 @@ func _on_speed_changed(speed: float):
 func _on_health_changed(current: int, max: int) -> void:
 	var value: float = (float(current) / float(max)) * 100.0
 	health_bar.value = value
+
+func _on_bombs_changed(current: int, max: int):
+
+	var text := "BOMBS: "
+
+	for i in range(max):
+
+		if i < current:
+			text += "● "
+		else:
+			text += "○ "
+
+	bomb_label.text = text

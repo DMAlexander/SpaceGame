@@ -6,6 +6,8 @@ extends Control
 @onready var title_label: Label = $VBoxContainer/TitleLabel
 
 func _ready():
+	Engine.time_scale = 1.0
+	await Fade.fade_in(0.4)
 ##	start_button.grab_focus()
 	start_button.pressed.connect(_on_start_pressed)
 
