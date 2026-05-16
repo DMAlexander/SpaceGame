@@ -81,8 +81,8 @@ func _on_level_started(index: int):
 	# ---------------- ENEMIES ----------------
 	for e in get_tree().get_nodes_in_group("enemy"):
 
-		if e.has_signal("died") and not e.died.is_connected(_on_enemy_died):
-			e.died.connect(_on_enemy_died)
+		if not get_tree().node_added.is_connected(_on_node_added):
+			get_tree().node_added.connect(_on_node_added)
 
 	# ---------------- LEVEL COMPLETE ----------------
 	if current_level.level_completed.is_connected(_on_level_completed):
@@ -239,3 +239,10 @@ func _on_player_died():
 
 	await get_tree().create_timer(1.5).timeout
 	gos.visible = true
+	
+func _on_node_added(node):
+
+	if node.is_in_group("enemy"):
+
+		if node.has_signal("died") and not node.died.is_connected(_on_enemy_died):
+			node.died.connect(_on_enemy_died)

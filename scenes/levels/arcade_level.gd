@@ -206,6 +206,10 @@ func spawn_enemy(
 
 	# Set before adding for stability
 	e.global_position = pos
+	
+	# CONNECT HERE (IMPORTANT)
+	if e.has_signal("died"):
+		e.died.connect(get_tree().current_scene._on_enemy_died)
 
 	enemy_container.add_child(e)
 
