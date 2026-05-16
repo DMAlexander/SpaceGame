@@ -25,7 +25,7 @@ var player = null
 
 @onready var bg_far: TextureRect = $ParallaxRoot/BackgroundFar
 @onready var bg_near: TextureRect = $ParallaxRoot/BackgroundNear
-
+@onready var pb = $ParallaxBackground
 # --------------------------------------------------
 # WAVE SETTINGS
 # --------------------------------------------------
@@ -115,6 +115,10 @@ func start() -> void:
 # ==================================================
 
 func _process(delta):
+	
+	pb.scroll_offset.y += delta*scroll_speed
+	if pb.scroll_offset.y >= 960:
+		pb.scroll_offset.y = 0
 
 	dive_timer -= delta
 
