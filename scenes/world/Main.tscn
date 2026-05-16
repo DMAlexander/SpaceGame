@@ -90,6 +90,9 @@ visible = false
 [node name="LevelCompleted" parent="UI" instance=ExtResource("13_ovuor")]
 visible = false
 
+[node name="ShopScene" parent="UI" instance=ExtResource("11_g1khb")]
+visible = false
+
 [node name="BombLabel" type="Label" parent="UI"]
 offset_left = 9.0
 offset_top = 61.0

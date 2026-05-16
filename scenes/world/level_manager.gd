@@ -15,6 +15,7 @@ var level_index: int = -1
 var player: Node = null
 
 var level_completed_ui = null
+var shop_scene_ui = null;
 
 # -----------------------------
 # FLOW STATE MACHINE
@@ -41,8 +42,9 @@ func start_flow(p_player):
 	level_index = -1
 	load_next_level()
 
-func set_ui_references(ui_node):
+func set_ui_references(ui_node, ui_node2):
 	level_completed_ui = ui_node
+	shop_scene_ui = ui_node2
 
 # ==================================================
 # MAIN FLOW CONTROLLER
@@ -163,23 +165,41 @@ func show_level_completed(score: int) -> void:
 # SHOP FLOW
 # ==================================================
 
+#func load_shop():
+
+#	if shop_scene == null:
+#		push_error("LevelManager: shop_scene not assigned!")
+#		return
+
+#	var shop = shop_scene.instantiate()
+#	level_container.add_child(shop)
+
+#	state = FlowState.IN_SHOP
+
+#	await shop.shop_completed
+
+#	shop.queue_free()
+
+#	state = FlowState.TRANSITION
+	
 func load_shop():
 
 	if shop_scene == null:
 		push_error("LevelManager: shop_scene not assigned!")
 		return
 
-	var shop = shop_scene.instantiate()
-	level_container.add_child(shop)
+	shop_scene_ui.visible = true
+#	var shop = shop_scene.instantiate()
+#	level_container.add_child(shop)
 
 	state = FlowState.IN_SHOP
 
-	await shop.shop_completed
+	await shop_scene_ui.shop_completed
 
-	shop.queue_free()
+	shop_scene_ui.queue_free()
 
 	state = FlowState.TRANSITION
-
+	
 
 # ==================================================
 # END SCREEN

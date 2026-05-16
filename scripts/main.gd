@@ -8,6 +8,7 @@ extends Node2D
 @onready var level_manager = $LevelManager
 @onready var gos: Control = $UI/GameOverScreen
 @onready var level_completed_ui: Control = $UI/LevelCompleted
+@onready var shop_scene_ui: Control = $UI/ShopScene
 
 var laser_scene = preload("res://scenes/laser.tscn")
 
@@ -55,7 +56,7 @@ func _ready():
 
 	level_manager.start_flow(player)
 	ui._on_bombs_changed(player.bombs, player.max_bombs)
-	level_manager.set_ui_references(level_completed_ui)
+	level_manager.set_ui_references(level_completed_ui, shop_scene_ui)
 
 
 # ==================================================
