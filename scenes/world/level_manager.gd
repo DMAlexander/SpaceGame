@@ -117,6 +117,7 @@ func _on_return_to_menu():
 # LEVEL LOADING
 # -----------------------------
 func load_level(level_data: LevelData):
+	print("PLAYER BEING INJECTED:", player)
 
 	if is_instance_valid(current_level):
 		current_level.queue_free()

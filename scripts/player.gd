@@ -110,11 +110,12 @@ func _handle_arcade_movement(delta):
 
 
 func get_play_bounds() -> Dictionary:
+
 	var size = get_viewport_rect().size
 
 	return {
-		"min": Vector2(50, size.y * 0.35),
-		"max": Vector2(size.x - 50, size.y - 80)
+		"min": Vector2(48, size.y * 0.55),
+		"max": Vector2(size.x - 48, size.y - 48)
 	}
 
 

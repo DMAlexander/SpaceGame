@@ -22,6 +22,7 @@ texture = ExtResource("1_6ryrm")
 [node name="Player" parent="." instance=ExtResource("1_431da")]
 
 [node name="Camera2D" type="Camera2D" parent="."]
+enabled = false
 script = ExtResource("5_b3pok")
 target_path = NodePath("../Player")
 
