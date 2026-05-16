@@ -8,6 +8,7 @@ extends Node2D
 @onready var level_manager = $LevelManager
 
 var laser_scene = preload("res://scenes/laser.tscn")
+@onready var gos: Control = $GameOverScreen
 
 var lasers: Node2D = null
 var transitioning := false
@@ -82,3 +83,12 @@ func _on_enemy_died(pos: Vector2, points: int):
 
 	RunData.score += final_points
 	score_label.text = str(RunData.score)
+	
+
+func _on_player_died():
+#	explode_sound.play()
+	gos.set_score(RunData.score)
+	gos.set_high_score(RunData.score)
+#	save_game()
+	await get_tree().create_timer(1.5).timeout
+	gos.visible = true

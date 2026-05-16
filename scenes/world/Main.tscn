@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bp2xkkktijuu7"]
+[gd_scene load_steps=13 format=3 uid="uid://bp2xkkktijuu7"]
 
 [ext_resource type="Script" uid="uid://ce1tq6cx2qamk" path="res://scripts/main.gd" id="1_0nnu2"]
 [ext_resource type="Texture2D" uid="uid://cbs5ptw6o4y8u" path="res://Foobar.jpg" id="1_6ryrm"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://cygclflaq0a8" path="res://level_data.gd" id="9_56r3f"]
 [ext_resource type="Resource" uid="uid://bdedcbyvpdb5a" path="res://arcade_01_data.tres" id="10_g1khb"]
 [ext_resource type="PackedScene" uid="uid://brjjien1tredp" path="res://scenes/shop_scene/shop_scene.tscn" id="11_g1khb"]
+[ext_resource type="PackedScene" uid="uid://dpdihqbii044f" path="res://scenes/game_over/game_over_screen.tscn" id="12_g1khb"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_0nnu2")
@@ -20,6 +21,7 @@ visible = false
 texture = ExtResource("1_6ryrm")
 
 [node name="Player" parent="." instance=ExtResource("1_431da")]
+position = Vector2(270, 834)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 enabled = false
@@ -78,3 +80,6 @@ offset_top = 1.0
 offset_right = 554.0
 offset_bottom = 24.0
 text = "0000"
+
+[node name="GameOverScreen" parent="UI" instance=ExtResource("12_g1khb")]
+visible = false

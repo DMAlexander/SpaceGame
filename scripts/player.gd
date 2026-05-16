@@ -204,7 +204,6 @@ func apply_damage(amount: int, source_pos: Vector2 = global_position) -> void:
 		emit_signal("died")
 		queue_free()
 
-
 func _handle_invulnerability(delta: float) -> void:
 	if not is_invulnerable:
 		sprite.modulate = Color.WHITE
