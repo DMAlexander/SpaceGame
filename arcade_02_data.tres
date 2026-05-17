@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="LevelData" load_steps=3 format=3 uid="uid://dercljhu4nacc"]
+
+[ext_resource type="PackedScene" uid="uid://ce5b4x81g717f" path="res://scenes/levels/arcade_level_01.tscn" id="1_s86a2"]
+[ext_resource type="Script" uid="uid://cygclflaq0a8" path="res://level_data.gd" id="1_votqs"]
+
+[resource]
+script = ExtResource("1_votqs")
+scene = ExtResource("1_s86a2")
+music_id = "arcade_theme_1"
+intro_text = "Foobar"
+metadata/_custom_type_script = "uid://cygclflaq0a8"

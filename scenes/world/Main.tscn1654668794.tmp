@@ -95,7 +95,6 @@ visible = false
 visible = false
 
 [node name="EndScreen" parent="UI" instance=ExtResource("11_om08x")]
-visible = false
 
 [node name="BombLabel" type="Label" parent="UI"]
 offset_left = 9.0

@@ -14,7 +14,8 @@ func _ready():
 
 	# Example run data hookup (adjust to your system)
 	score_label.text = "Score: " + str(RunData.score)
-	stats_label.text = "Upgrades: " + str(RunData.upgrades_taken)
+	stats_label.text = "Upgrades: "
+##	stats_label.text = "Upgrades: " + str(RunData.upgrades_taken)
 
 func _on_restart():
 	emit_signal("restart_requested")

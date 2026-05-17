@@ -16,6 +16,7 @@ var player: Node = null
 
 var level_completed_ui = null
 var shop_scene_ui = null;
+var end_scene_ui = null;
 
 # -----------------------------
 # FLOW STATE MACHINE
@@ -42,9 +43,10 @@ func start_flow(p_player):
 	level_index = -1
 	load_next_level()
 
-func set_ui_references(ui_node, ui_node2):
+func set_ui_references(ui_node, ui_node2, ui_node3):
 	level_completed_ui = ui_node
 	shop_scene_ui = ui_node2
+	end_scene_ui = ui_node3
 
 # ==================================================
 # MAIN FLOW CONTROLLER
@@ -55,8 +57,8 @@ func load_next_level():
 	if state == FlowState.IN_SHOP:
 		return
 
-	if state == FlowState.TRANSITION:
-		return
+##	if state == FlowState.TRANSITION:
+##		return
 
 	level_index += 1
 
@@ -213,15 +215,21 @@ func show_end_screen():
 
 	await get_tree().process_frame
 
-	if end_screen_scene == null:
-		push_error("LevelManager: end_screen_scene not assigned!")
+	if end_scene_ui == null:
+		push_error("LevelManager: end_scene_ui not assigned!")
 		return
 
-	var end_screen = end_screen_scene.instantiate()
-	level_container.add_child(end_screen)
+	state = FlowState.COMPLETE
 
-	end_screen.restart_requested.connect(_on_restart_run)
-	end_screen.menu_requested.connect(_on_return_to_menu)
+	end_scene_ui.visible = true
+##	end_scene_ui.set_score(RunData.score)
+
+	# prevent duplicate connections
+	if not end_scene_ui.restart_requested.is_connected(_on_restart_run):
+		end_scene_ui.restart_requested.connect(_on_restart_run)
+
+	if not end_scene_ui.menu_requested.is_connected(_on_return_to_menu):
+		end_scene_ui.menu_requested.connect(_on_return_to_menu)
 
 
 # ==================================================
@@ -230,8 +238,8 @@ func show_end_screen():
 
 func _on_restart_run():
 	level_index = -1
-	RunData.reset()
-	load_next_level()
+##	RunData.reset()
+	start_flow(player)
 
 
 func _on_return_to_menu():

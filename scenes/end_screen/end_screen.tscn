@@ -24,6 +24,7 @@ offset_right = 55.0
 offset_bottom = 73.5
 grow_horizontal = 2
 grow_vertical = 2
+alignment = 1
 
 [node name="TitleLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
